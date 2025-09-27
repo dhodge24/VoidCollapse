@@ -23,7 +23,7 @@ from tqdm import tqdm
 from tifffile import imwrite
 
 # Import custom modules
-from units import *
+from SSPR.units import *
 
 
 # Save and plot options
