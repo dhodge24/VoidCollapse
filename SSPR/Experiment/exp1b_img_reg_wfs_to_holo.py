@@ -14,7 +14,6 @@ import shutil
 from tifffile import imread
 
 # Import custom modules
-from utilities import create_circular_mask
 
 
 def clear_directory(dir_main, dir_sub):

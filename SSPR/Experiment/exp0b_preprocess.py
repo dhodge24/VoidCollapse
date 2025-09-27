@@ -16,7 +16,7 @@ from scipy.ndimage import center_of_mass
 import shutil
 from tifffile import imwrite, imread
 
-from utilities import FFT, IFFT
+from SSPR.utilities import FFT, IFFT
 
 
 def clear_directory(dir_main, dir_sub):

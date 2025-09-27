@@ -13,7 +13,7 @@ sampling conditions needs to be met to obtain the correct phase reconstruction r
 import numpy as np
 from tifffile import imread, imwrite
 
-from utilities import showImg, padToSize, fadeoutImage
+from SSPR.utilities import showImg, padToSize, fadeoutImage
 
 
 save = True

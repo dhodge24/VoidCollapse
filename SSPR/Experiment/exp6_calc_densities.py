@@ -36,8 +36,8 @@ from tifffile import imread
 from matplotlib import pyplot as plt
 
 # Import custom modules
-from utilities import create_circular_mask, cropToCenter
-from units import *
+from SSPR.utilities import create_circular_mask, cropToCenter
+from SSPR.units import *
 
 
 run_holo = "571"

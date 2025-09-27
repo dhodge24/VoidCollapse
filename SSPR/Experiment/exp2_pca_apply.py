@@ -20,7 +20,7 @@ from sklearn.decomposition import PCA
 from scipy.ndimage import median_filter, zoom
 from tifffile import imread, imwrite
 
-from utilities import showImg, removeOutliers
+from SSPR.utilities import showImg, removeOutliers
 import joblib
 from tqdm import tqdm
 import matplotlib.pyplot as plt

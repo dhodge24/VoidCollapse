@@ -14,7 +14,7 @@ should be checked, otherwise that phase retrieval result will be completely wron
 import numpy as np
 from tifffile import imread, imwrite
 
-from utilities import showImg, padToSize, fadeoutImage
+from SSPR.utilities import showImg, padToSize, fadeoutImage
 
 
 save = True

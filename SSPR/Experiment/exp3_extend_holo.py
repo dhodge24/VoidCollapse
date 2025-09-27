@@ -9,7 +9,7 @@ image if the white fields were taken too early or too late.
 
 import numpy as np
 from tifffile import imread, imwrite
-from utilities import fadeoutImage, showImg, padToSize
+from SSPR.utilities import fadeoutImage, showImg, padToSize
 
 
 save = True

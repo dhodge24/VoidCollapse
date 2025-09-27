@@ -15,7 +15,7 @@ import glob
 import shutil
 from tqdm import tqdm
 
-from utilities import shiftRotateMagnifyImage, padToSize, cropToCenter, remove_outliers_mult_imgs, reflect_image_2d
+from SSPR.utilities import shiftRotateMagnifyImage, padToSize, cropToCenter, remove_outliers_mult_imgs, reflect_image_2d
 
 
 def clear_directory(dir_main, dir_sub):
