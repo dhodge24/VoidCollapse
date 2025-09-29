@@ -15,17 +15,16 @@ artifacts.
 
 """
 
-
 import numpy as np
 from sklearn.decomposition import PCA
 from scipy.ndimage import median_filter, zoom
 from tifffile import imread, imwrite
+
+from SSPR.utilities import showImg
 import joblib
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import bm3d
-
-from SSPR.utilities import showImg, removeOutliers
 
 
 def save_pca_model(pca_model, filename):
@@ -85,7 +84,6 @@ def downsample_image(image, downsample_factor):
     else:
         raise ValueError("Input image must be 2D or 3D.")
 
-
 def upsample_image(image, downsample_factor):
     """
     Upsamples an image by some integer factor
@@ -112,7 +110,6 @@ def calculate_pca(ref_data, num_components, downsample_factor=4):
     :param downsample_factor: Typically will be value 1, 2, or 4
     :return: PCA model to be applied to the void image for flat-field correction
     """
-
     filtered_ref_data = downsample_image(ref_data, downsample_factor=downsample_factor)
     pca_model = PCA(n_components=num_components)
     pca_input_dims = [filtered_ref_data.shape[0], filtered_ref_data.shape[2] * filtered_ref_data.shape[1]]
@@ -161,7 +158,6 @@ def correct_flatfield(image, pca_model, plot_variance_contribution, plot_princip
         pca_model.mean_ = np.array(pca_model.mean_)
         pca_model.components_ = np.array(pca_model.components_).reshape(pca_model.n_components_, Ny_down * Nx_down)
 
-    # This tells you about the percentage that the number of components captures about your data (want > 85%)
     if plot_variance_contribution:
         print(np.cumsum(pca_model.explained_variance_ratio_ * 100))
         plt.figure()
@@ -201,6 +197,7 @@ def correct_flatfield(image, pca_model, plot_variance_contribution, plot_princip
 
     # Reshape synthetic flat field and upsample if needed
     synthetic_flat_field = synthetic_flat_field.reshape(Ny_down, Nx_down)
+
     if downsample_factor > 1:
         synthetic_flat_field = upsample_image(synthetic_flat_field, downsample_factor)
 
@@ -230,10 +227,9 @@ def correct_flatfield(image, pca_model, plot_variance_contribution, plot_princip
     return corrected_image, synthetic_flat_field
 
 
-# Options
+# Other options
 save = True
-use_img_reg_wfs = False  # Original white fields warped to dynamic image -- used only for comparisons
-use_warped_wfs = True  # Original white fields warped to first white field and then warped to void image
+use_warped_wfs = True  # Original white fields warped to first white field and then warped to dynamic image
 plot_variance_contribution = False
 plot_principal_components = False
 plot_outputs = True
@@ -244,86 +240,68 @@ top_left = (1450, 1925)
 bottom_right = (1625, 2180)
 
 run_wfs = "562"
-run_holo = "571"
+run_holo = "579"
 
 # Algorithm options
-num_components = 4  # 4 typically captures most of the variance
-downsample_factor = 1  # For BM3D algorithm, if set to True
+num_components = 20
+downsample_factor = 1
 
 # Main directories
 dir_main = ("/Users/danielhodge/Library/CloudStorage/Box-Box/BYU_CXI_Research_Team/ProjectFolders/SingleShotImaging/"
             "meclx4819/Tifs/run_data/")
-dir_holo_preprocessed = "run" + run_holo + "_exp_preprocessed/"
+dir_sim = "run" + run_holo + "_sim/"
 
 if use_warped_wfs:
-    dir_wfs_to_holo_img_reg = "run_" + run_wfs + "_to_" + run_holo + "_img_reg_exp_warped/"
-    dir_run_warped_wf = "run" + run_wfs + "_warped_wf/"
-if use_img_reg_wfs:
-    dir_wfs_to_holo_img_reg = "run_" + run_wfs + "_to_" + run_holo + "_img_reg_exp/"
-    dir_run_warped_wf = "run" + run_wfs + "_warped_wf/"
-if not use_warped_wfs or use_img_reg_wfs:
-    dir_wfs_preprocessed = "run" + run_wfs + "_exp_preprocessed/"
+    dir_wfs_to_holo_img_reg_sim_warped = "run_" + run_wfs + "_to_" + run_holo + "_img_reg_sim_warped/"
+    dir_run_warped_wfs = "run" + run_wfs + "_warped_wfs/"
+if not use_warped_wfs:  # PCA only
+    dir_wfs = "run" + run_wfs + "_for_run" + run_holo + "_sim_wfs_with_speckle/"
 
 # Files to import
 if use_warped_wfs:
     tiffs_all_warped = "*.tiff"
-if use_img_reg_wfs:
-    tiffs_all = "*.tiff"
-if not use_warped_wfs or use_img_reg_wfs:
-    tiffs_wfs_preprocessed = "run" + run_wfs + "_exp_preprocessed.tiff"
-# tiffs_holo_exp_preprocessed = "run" + run_holo + "_exp_preprocessed.tiff"
-tiffs_holo_exp_preprocessed = "run" + run_holo + "_exp_preprocessed_no_Talbot.tiff"
+if not use_warped_wfs:
+    tiffs_wfs_preprocessed = "run" + run_wfs + "_sim_wfs_with_speckle.tiff"
+tiff_sim_holos_with_speckle_filename = "run" + run_holo + "_sim_holos_with_speckle.tiff"
 
 # Files to save
-tiff_holo_with_speckle_ffc = "run" + run_holo + "_exp_holos_with_speckle_FFC.tiff"
-tiff_holo_with_speckle_before_inpaint_ffc = "run" + run_holo + "_before_inpaint.tiff"
+tiff_holo_with_speckle_ffc = "run" + run_holo + "_sim_holos_with_speckle_FFC.tiff"
 tiff_holo_with_speckle_syn_wf = "run" + run_holo + "_syn_with_speckle_wf.tiff"
 pkl_filename = "pca_model_run" + run_holo + "_with_speckle.pkl"
 
 
 # Import experimental hologram
-holo_exp = np.array(imread(dir_main + dir_holo_preprocessed + tiffs_holo_exp_preprocessed), dtype=np.float32)
-holo_exp = holo_exp[0, ...]
+holo_sim = np.array(imread(dir_main + dir_sim + tiff_sim_holos_with_speckle_filename), dtype=np.float32)
+holo_sim = holo_sim[0, ...]
 
 if use_warped_wfs:
     wfs = np.array(imread(dir_main +
-                          dir_wfs_to_holo_img_reg +
-                          dir_run_warped_wf +
+                          dir_wfs_to_holo_img_reg_sim_warped +
+                          dir_run_warped_wfs +
                           tiffs_all_warped))
-if use_img_reg_wfs:
+if not use_warped_wfs:
     wfs = np.array(imread(dir_main +
-                          dir_wfs_to_holo_img_reg +
-                          dir_run_warped_wf +
-                          tiffs_all))
-if not use_warped_wfs or use_img_reg_wfs:
-    wfs = np.array(imread(dir_main +
-                          dir_wfs_preprocessed +
+                          dir_wfs +
                           tiffs_wfs_preprocessed))
 
 Ny, Nx = wfs[0, :, :].shape
 pca_model = calculate_pca(ref_data=wfs,
                           num_components=num_components,
                           downsample_factor=downsample_factor)
-holo_ffc, syn_wf = correct_flatfield(image=holo_exp,
+holo_ffc, syn_wf = correct_flatfield(image=holo_sim,
                                      pca_model=pca_model,
                                      plot_variance_contribution=plot_variance_contribution,
                                      plot_principal_components=plot_principal_components,
-                                     top_left=top_left,
-                                     bottom_right=bottom_right,
-                                     apply_BM3D=apply_BM3D,
                                      downsample_factor=downsample_factor)
 syn_wf = syn_wf.reshape(Ny, Nx)
-syn_wf[syn_wf < 0] = 0
-holo_ffc[holo_ffc < 0] = 0
-holo_ffc = removeOutliers(originalImage=holo_ffc)
+holo_ffc[np.isnan(holo_ffc) | np.isinf(holo_ffc)] = 0
 
 if plot_outputs:
     showImg(holo_ffc, clim=(0, 2))
     showImg(syn_wf, clim=(0, 800))
 
 if save:
-    save_pca_model(pca_model, dir_main + dir_holo_preprocessed + pkl_filename)
-    imwrite(dir_main + dir_holo_preprocessed + tiff_holo_with_speckle_syn_wf, syn_wf)
-    imwrite(dir_main + dir_holo_preprocessed + tiff_holo_with_speckle_ffc, holo_ffc)
-    imwrite(dir_main + dir_holo_preprocessed + tiff_holo_with_speckle_before_inpaint_ffc, holo_ffc)
+    save_pca_model(pca_model, dir_main + dir_sim + pkl_filename)
+    imwrite(dir_main + dir_sim + tiff_holo_with_speckle_syn_wf, syn_wf)
+    imwrite(dir_main + dir_sim + tiff_holo_with_speckle_ffc, holo_ffc)
 

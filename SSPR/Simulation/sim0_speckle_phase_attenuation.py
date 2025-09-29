@@ -28,12 +28,13 @@ from SSPR.units import *
 
 # Save and plot options
 save = True
-plot_index_of_refrac = False
+plot_index_of_refrac = True
 
 run_holo = "579"
 
 # Saving directories
-dir_main = "/Users/danielhodge/Library/CloudStorage/Box-Box/BYU_CXI_Research_Team/ProjectFolders/SingleShotImaging/meclx4819/Tifs/run_data/"
+dir_main = ("/Users/danielhodge/Library/CloudStorage/Box-Box/BYU_CXI_Research_Team/ProjectFolders/SingleShotImaging/"
+            "meclx4819/Tifs/run_data/")
 dir_sim = "run" + run_holo + "_sim/"
 
 # Save file name
@@ -179,7 +180,7 @@ for pos in tqdm(positions):
 
 # Projection Approximation. We project the 3D volume containing all of our ellipsoids to 2D to obtain a 2D phase
 # and attenuation maps representing our CRL speckle at the object plane (right after the CRLs).
-box_2d_proj = np.sum(box, axis=-1)  # Sum along the z direction of the box containing the ellipsoids
+box_2d_proj = np.sum(box, axis=-1)  # Sum along the z direction (last axis) of the box containing the ellipsoids
 phase = -k0 * delta * box_2d_proj * dx_eff  # thickness = box_2d_proj * dx_eff
 attenuation = k0 * beta * box_2d_proj * dx_eff
 

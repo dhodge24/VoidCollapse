@@ -131,7 +131,7 @@ rho_SU8 = 1.185  # Density of the SU8 material - g/cm^3
 m_SiO2 = rho_SiO2 * V_SiO2_max  # Mass of the SiO2 material in grams
 m_SU8 = rho_SU8 * V_SU8  # Mass of the SU8 material in grams
 m_frac = m_SiO2 / (m_SiO2 + m_SU8) * 100
-print(f"The fraction of SiO2 within the {Ny}x{Nx} region is {m_frac:.2f}%")
+print(f"The fraction of SiO2 within the {Ny}x{Nx} region is {m_frac:.4f}%")
 
 # Recalculate n_e and rho_areal without the mask to consider the entire Ny x Nx region where the void is
 n_e = -ph * lam * n_c / np.pi * m_to_cm**2
